@@ -1,0 +1,74 @@
+Premise
+
+We have a simple robot that can only take a few actions.
+The commands are sent one byte at a time over a serial link as command packets.  These packets have the following format:
+
+Header (4 bytes)
+
+Header = "ZOOX", ASCII
+
+
+
+Length (1 byte)
+
+1 ASCII byte, so always <= 9
+
+Length = command length + repeat length (excludes header, length, checksum)
+
+
+
+Command (Length-1 bytes)
+
+ASCII, one of: "LEFT", "RIGHT", "FORWARD", "BEEP"
+
+
+
+Repeat (1 byte)
+
+1 ASCII byte, so always <= 9
+
+Number of times to repeat the command
+
+
+
+Checksum (1 byte)
+
+1 ASCII byte: [A,Z]
+
+Simple computation to check content for bit errors
+
+Calculated over the following section: [Length, Command, Repeat] (excludes header, checksum)
+
+
+
+Assignment
+
+Using the provided code, implement the parse(c) function to identify and execute each command packet.
+The parse(c) function takes one byte at a time because that is how the data will arrive for the simple robot.
+Feel free to add more functions and definitions, but do not change main().
+execute_packet_command(...) has been provided to assist with the test output.
+A few example inputs -> outputs for the complete system:
+ZOOX6RIGHT3X -> Cmd: RRR
+ZOOX5LEFT2QZOOX5BEEP3C -> Cmd: LL!!!
+
+If there are multiple complete packets, they should all get called as parameters to execute_packet_command(...).
+
+This simple robot lives in a harsh world.  These packets are coming in over a bad link.  There may be lots of bit errors, random erroneous bytes, and all kinds of data loss.  We need this code to silently drop all the junk data, but output packets that pass the checksum.  For example, this means we could have the following inputs -> outputs:
+abcZOOX6RIGHT2Wabc -> Cmd: RR
+abcZOOX6lmnopRIGHT3Xabc -> Cmd:
+ZOOX6RIGHT3abc -> Cmd:
+(notice the checksum byte is lost on that last one)
+
+If your parser identifies bytes as belonging to a complete packet, those bytes will not be used for any later packets.
+
+
+
+Grading
+
+A variety of test inputs will be checked automatically and output formatting is very specific.  For this reason, all answers must start with "Cmd: " and this is provided in main().  Your parse(c) function need only call execute_packet_command(...) when appropriate.
+
+
+
+Timing
+
+Basic command parsing should be achievable within the time limit.  Covering all the possible edge cases is bonus.
